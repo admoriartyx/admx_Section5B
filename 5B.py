@@ -80,3 +80,78 @@ plot_avg_particles(N, epsilon, 0.1, 10)
 # taper off a little bit but I will keep plugging away. Don't mind my commit time! I am actually going to
 # wrap this up a bit more tomorrow.
 
+# Back now. Let's try to make a little more progress.
+# The quantum partition function for canonical ensemble largely resembles the classical one, just with
+# different conceptual interpretation.
+# Z = sum[k=0, N](exp(-beta(N-k)eta)) = (1 - exp(-beta*eta(N+1)))/(1 - exp(-beta*eta))
+
+# Where the probability of a specific microstate is once again given by P = exp(-beta*k*eta)/Z
+
+# Part e
+
+# We just have to define <n_e> for the quantum system since <n_0> = N - <n_e>
+# Taking the derivative of ln(Z) with respect to eta and dividing by beta,
+
+# <n_e> = (-1/beta)((-beta(N + 1)exp(-beta*eta(N + 1)))/(1 - exp(-beta*eta(N + 1))) + (beta*exp(-beta*eta))/(1 - exp(-beta*eta))))
+
+# Part f
+
+# omega = sum[N = 0, inf](exp(beta*mu*N)*Z) = 1/((exp(beta(mu-eta)) - 1)(exp(beta*mu)-1))
+
+# Part g
+
+# Simply in terms of the original sum I wrote for the last part of the problem,
+
+# <n> = (sum[n=0, inf](n*exp(beta*mu*n)*exp(-beta*n*eta)))/(sum[n=0, inf](exp(beta*mu*n)*exp(-beta*n*eta)))
+
+# Part h
+
+# After plugging everything in,
+
+# <n> = (exp(beta*(mu -eta)))/(1 - exp(beta(mu - eta)))
+
+# Part i
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+N = 100000 
+k_B = 1.0  # A poor approximation, yes, but for the sake of the plotting I am keeping it
+T = np.linspace(0.1, 10, 100) 
+epsilon = 0.01 
+
+def chem_potential(T, epsilon, N):
+    return epsilon * np.log(N) / (k_B * T)
+
+def ground_state(mu, T, epsilon):
+    beta = 1 / (k_B * T)
+    return 1 / (np.exp(beta * (epsilon - mu)) - 1)
+
+def heat(T, n0):
+    return np.gradient(n0, T)
+
+# Perform calculations
+mu_values = chem_potential(T, epsilon, N)
+n0_values = ground_state(mu_values, T, epsilon)
+cv_values = heat(T, n0_values)
+
+plt.figure(figsize=(12, 8))
+plt.subplot(311)
+plt.plot(T, mu_values, label='Chemical Potential (mu)')
+plt.xlabel('Temperature (K)')
+plt.ylabel('Chemical Potential')
+plt.legend()
+plt.subplot(312)
+plt.plot(T, n0_values, label='Ground State Occupation')
+plt.xlabel('Temperature (K)')
+plt.ylabel('Occupation Number')
+plt.legend()
+plt.subplot(313)
+plt.plot(T, cv_values, label='Specific Heat (Cv)')
+plt.xlabel('Temperature (K)')
+plt.ylabel('Specific Heat')
+plt.legend()
+plt.tight_layout()
+plt.show()
+plt.savefig('bose1.png')
+
